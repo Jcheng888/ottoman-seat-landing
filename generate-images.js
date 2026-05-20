@@ -22,7 +22,7 @@ const path = require("path");
 
 // ── Config ──────────────────────────────────────────────────────────────────
 const FAL_KEY = process.env.FAL_KEY;
-const FAL_API  = "https://fal.run/fal-ai/flux-pro/v1";     // flux-pro (fast, high quality)
+const FAL_API  = "https://fal.run/fal-ai/flux-pro";         // flux-pro (fast, high quality)
 const OUT_DIR  = path.join(__dirname, "generated-images");
 const MANIFEST = path.join(OUT_DIR, "manifest.json");
 const CONCURRENCY = 2;                                      // parallel requests
@@ -149,9 +149,9 @@ async function sleep(ms) {
 
 async function generateImage(slotKey, prompt, sizeKey = "landscape") {
   const dimensions = SIZES[sizeKey] || SIZES.landscape;
+  // flux-pro does not support negative_prompt — only prompt is used
   const body = {
     prompt: prompt.positive,
-    negative_prompt: prompt.negative,
     image_size: dimensions,
     num_inference_steps: 28,
     guidance_scale: 3.5,

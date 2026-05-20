@@ -267,8 +267,8 @@ OTT.funnelSteps = [
 // When images are generated via FAL AI, add them to generated-images/ and
 // update the paths here. Leave a slot as null to keep placeholder mode.
 OTT.images = {
-  heroSplit:   null,
-  heroFull:    null,
+  heroSplit:   "generated-images/hero-split.jpg",
+  heroFull:    "generated-images/hero-full.jpg",
   heroGallery: {
     main:       null,
     macro:      null,
@@ -277,31 +277,31 @@ OTT.images = {
     glitter:    null,
   },
   painpoints: {
-    spill:      null,
-    sweat:      null,
-    upholstery: null,
-    cheap:      null,
-    cracks:     null,
+    spill:      "generated-images/painpoint-spill.jpg",
+    sweat:      "generated-images/painpoint-sweat.jpg",
+    upholstery: "generated-images/painpoint-upholstery.jpg",
+    cheap:      "generated-images/painpoint-cheap.jpg",
+    cracks:     "generated-images/painpoint-cracks.jpg",
   },
-  solution:    null,
+  solution:    "generated-images/solution-layers.jpg",
   wow: {
-    beforeAfter:  null,
+    beforeAfter:  "generated-images/wow-before-after.jpg",
     interior:     null,
     galaxy:       null,
-    macroStitch:  null,
+    macroStitch:  "generated-images/wow-macro-stitch.jpg",
     installTL:    null,
     showroom:     null,
   },
   series: {
     origin: "uploads/1.Origin.jpeg",
-    adamas: null,
+    adamas: "generated-images/series-adamas.jpg",
     eleven: "uploads/1.Eleven.jpeg",
     titan:  "uploads/1.Titan.jpeg",
   },
-  testimonial: null,
+  testimonial: "generated-images/testimonial-generic.jpg",
   branches: {
     penang:   null,
-    selangor: null,
+    selangor: "generated-images/branch-selangor.jpg",
     johor:    null,
   }
 };

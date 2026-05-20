@@ -126,8 +126,10 @@ function Testimonials() {
           {OTT.testimonials.map((t, i) => (
             <div key={i} className="testi-card">
               <Media tag="PHOTO" tone={t.mediaTone}
+                     src={OTT.images?.testimonial || undefined}
                      brief={`Customer photo: ${t.name} dengan kereta ${t.car}. Pose santai, smile, dalam/luar kereta. Authentic, bukan stock photo.`}
                      dim="600×450"
+                     alt={`${t.name} with ${t.car}`}
                      style={{ position:'relative', width:'100%', height:'auto', borderRadius:0, border:'none' }}
                      className="testi-card__media"/>
               <div className="testi-card__body">
@@ -163,8 +165,10 @@ function Branches() {
           {OTT.branches.map((b, i) => (
             <div className="branch" key={i}>
               <Media tag="PHOTO" tone={i === 1 ? "leather" : i === 0 ? "default" : "cocoa"}
+                     src={OTT.images?.branches?.[i === 0 ? "penang" : i === 1 ? "selangor" : "johor"] || undefined}
                      brief={`Exterior shop Ottoman ${b.city} — signboard logo visible, kereta parking depan, daylight golden hour.`}
                      dim="900×540"
+                     alt={`Ottoman ${b.city} showroom`}
                      style={{ position:'relative', width:'100%', height:'auto', borderRadius:0, border:'none' }}
                      className="branch__media"/>
               <div className="branch__body">

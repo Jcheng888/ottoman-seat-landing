@@ -96,7 +96,7 @@ function HeroSplit({ onOrder, onCheck }) {
         </div>
         <div className="hero__visual">
           <span className="hero__visual-badge"><span className="dot" /> Live · Promosi 48 jam</span>
-          <Media tag="VIDEO" tone="leather" icon="▶"
+          <Media tag="VIDEO" tone="leather" icon="▶" src={OTT.images?.heroSplit || undefined}
           brief="Hero video looping 8s: kamera slow-pan dari pintu kereta luxury, masuk ke dalam, focus pada seat Ottoman Adamas (cocoa + tan piping, diamond stitch). Lighting dusk, warm tone."
           dim="1080×1350" style={{ position: 'absolute', inset: 0, borderRadius: 0, border: 'none', minHeight: '100%' }} />
         </div>
@@ -110,7 +110,7 @@ function HeroFull({ onOrder, onCheck }) {
     <section className="hero hero--full" id="top">
       <div className="hero__bleed">
         <div className="hero__bleed-media">
-          <Media tag="VIDEO" tone="leather" icon="▶"
+          <Media tag="VIDEO" tone="leather" icon="▶" src={OTT.images?.heroFull || undefined}
           brief="Full-bleed hero: cinematic 12s loop interior kereta luxury malam, lighting dashboard sahaja, focus drift dari steering ke seat Ottoman fully installed. Mood ambient, no people."
           dim="1920×1080" />
         </div>
@@ -145,19 +145,19 @@ function HeroGallery({ onOrder, onCheck }) {
           </button>
         </div>
         <div className="hero__gallery">
-          <Media className="g1" tag="VIDEO" tone="leather" icon="▶"
+          <Media className="g1" tag="VIDEO" tone="leather" icon="▶" src={OTT.images?.heroGallery?.main || undefined}
           brief="Hero featured: 8s loop driver POV — masuk kereta, duduk atas seat Ottoman Adamas, drive off. Dusk lighting."
           dim="1200×900" />
-          <Media className="g2" tag="PHOTO" tone="cocoa"
+          <Media className="g2" tag="PHOTO" tone="cocoa" src={OTT.images?.heroGallery?.macro || undefined}
           brief="Macro shot diamond stitching, lighting 45°, texture leather grain visible."
           dim="600×600" />
-          <Media className="g3" tag="PHOTO" tone="maroon"
+          <Media className="g3" tag="PHOTO" tone="maroon" src={OTT.images?.heroGallery?.solo || undefined}
           brief="Driver seat solo shot, dramatic side light, maroon + cream theme."
           dim="600×600" />
-          <Media className="g4" tag="PHOTO" tone="default"
+          <Media className="g4" tag="PHOTO" tone="default" src={OTT.images?.heroGallery?.wide || undefined}
           brief="Wide interior, 5-seater fully installed, top-down 3/4 angle."
           dim="900×600" />
-          <Media className="g5" tag="PHOTO" tone="galaxy"
+          <Media className="g5" tag="PHOTO" tone="galaxy" src={OTT.images?.heroGallery?.glitter || undefined}
           brief="Eleven series glitter effect, night shot dengan ambient light."
           dim="900×600" />
         </div>
@@ -213,6 +213,7 @@ function Painpoint({ p, reverse }) {
   return (
     <div className={`painpoint ${reverse ? "painpoint--rev" : ""}`}>
       <Media className="painpoint__media" tag={p.mediaTag} tone={p.mediaTone}
+      src={OTT.images?.painpoints?.[p.id] || undefined}
       brief={p.mediaBrief} dim={p.mediaDim} />
       <div>
         <div className="painpoint__num">{p.num}</div>
@@ -236,7 +237,7 @@ function Solution() {
         </div>
         <div className="solution__grid">
           <div className="solution__visual">
-            <Media tag="PHOTO" tone="peach"
+            <Media tag="PHOTO" tone="peach" src={OTT.images?.solution || undefined}
             brief="Exploded view animation/photo: 5 lapisan seat cover dibuka berlapis-lapis. Top down view dengan label arrow ke setiap lapisan. Mood premium, hi-tech."
             dim="1080×1080"
             style={{ position: 'absolute', inset: 0, borderRadius: 'inherit' }} />
@@ -263,10 +264,10 @@ function Solution() {
 // ---------------- Wow sample gallery ----------------
 function WowGallery() {
   const items = [
-  { cls: "wow-1", tag: "VIDEO", tone: "leather", brief: "Hero reel: before-after transformation 6s. Kereta sebelum (seat fabric kotor, kusut) → after (Ottoman Adamas installed, cantik). Wipe transition.", dim: "1200×900" },
+  { cls: "wow-1", tag: "VIDEO", tone: "leather", src: OTT.images?.wow?.beforeAfter, brief: "Hero reel: before-after transformation 6s. Kereta sebelum (seat fabric kotor, kusut) → after (Ottoman Adamas installed, cantik). Wipe transition.", dim: "1200×900" },
   { cls: "wow-2", tag: "PHOTO", tone: "maroon", brief: "Honda HR-V interior — maroon + cream theme. Top-down 3/4 angle.", dim: "600×600" },
   { cls: "wow-3", tag: "PHOTO", tone: "galaxy", brief: "Eleven galaxy series, night lighting, glitter visible.", dim: "600×600" },
-  { cls: "wow-4", tag: "PHOTO", tone: "cocoa", brief: "Adamas series, diamond stitch macro, 45° lighting.", dim: "900×600" },
+  { cls: "wow-4", tag: "PHOTO", tone: "cocoa", src: OTT.images?.wow?.macroStitch, brief: "Adamas series, diamond stitch macro, 45° lighting.", dim: "900×600" },
   { cls: "wow-5", tag: "VIDEO", tone: "dark", brief: "Installation timelapse 10s — installer wrap seat dari awal sampai siap.", dim: "900×600" },
   { cls: "wow-6", tag: "PHOTO", tone: "default", brief: "Wide group shot 3 series side-by-side dalam showroom Klang. Drone-like angle.", dim: "1600×600" }];
 
