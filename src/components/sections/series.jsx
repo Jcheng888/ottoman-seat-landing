@@ -1,5 +1,5 @@
 import { Media } from "@/components/ui/media";
-import { series } from "@/data/content";
+import { series, images } from "@/data/content";
 
 export function SeriesSection({ onOrder }) {
   return (
@@ -23,9 +23,9 @@ function SeriesCard({ s, onClick }) {
     <div className="series" onClick={onClick}>
       <div className="series__media">
         <span className="series__badge">{s.badge}</span>
-        <Media tag="PHOTO" tone={s.tone}
+        <Media tag="PHOTO" tone={s.tone} src={images.series?.[s.id]}
                brief={`${s.name} series hero — single driver seat, studio lighting seamless ${s.tone === 'galaxy' ? 'biru malam' : s.tone}. Macro stitching visible.`}
-               dim="800×600"
+               dim="800×600" alt={`${s.name} series seat cover`}
                style={{ position:'absolute', inset:0, borderRadius:0, border:'none' }}/>
       </div>
       <div className="series__body">

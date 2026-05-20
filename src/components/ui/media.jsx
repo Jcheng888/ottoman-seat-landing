@@ -1,16 +1,34 @@
 "use client";
-// Media placeholder — describes shooting brief for the designer.
-// Renders placeholder gradient boxes; swap with next/image when real photos are ready.
+// Media component — displays product/lifestyle images.
+// Supports both placeholder mode (brief text on gradient background) and
+// real-image mode (img with overlays when src is provided).
 
-export function Media({ tag = "PHOTO", tone = "default", brief, dim, icon, className = "", style }) {
+export function Media({ tag = "PHOTO", tone = "default", brief, dim, icon, className = "", style, src, srcSet, alt = "" }) {
   const toneClass = tone === "default" ? "" : ` media--${tone}`;
   const tagClass = tag === "VIDEO" ? "media__tag--video" : "media__tag--photo";
+  const hasImage = !!src;
+
   return (
-    <div className={`media${toneClass} ${className}`} style={style}>
+    <div
+      className={`media${toneClass}${hasImage ? " media--has-image" : ""} ${className}`}
+      style={style}
+    >
+      {hasImage && (
+        <img
+          className="media__img"
+          src={src}
+          srcSet={srcSet || undefined}
+          alt={alt || brief || ""}
+          loading="lazy"
+          decoding="async"
+        />
+      )}
       <span className={`media__tag ${tagClass}`}>{tag}</span>
-      {icon ? <div className="media__icon" aria-hidden="true">{icon}</div> : null}
-      <div className="media__brief">{brief}</div>
-      {dim ? <div className="media__dim">{dim}</div> : null}
+      {icon && !hasImage ? <div className="media__icon" aria-hidden="true">{icon}</div> : null}
+      {!hasImage && <div className="media__brief">{brief}</div>}
+      {!hasImage && dim ? <div className="media__dim">{dim}</div> : null}
+      {hasImage && brief ? <div className="media__brief media__brief--overlay">{brief}</div> : null}
+      {hasImage && dim ? <div className="media__dim media__dim--overlay">{dim}</div> : null}
     </div>
   );
 }

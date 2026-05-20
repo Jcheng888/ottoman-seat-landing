@@ -1,5 +1,5 @@
 import { Media } from "@/components/ui/media";
-import { layers } from "@/data/content";
+import { layers, images } from "@/data/content";
 
 export function Solution() {
   return (
@@ -12,9 +12,9 @@ export function Solution() {
         </div>
         <div className="solution__grid">
           <div className="solution__visual">
-            <Media tag="PHOTO" tone="peach"
+            <Media tag="PHOTO" tone="peach" src={images.solution}
               brief="Exploded view animation/photo: 5 lapisan seat cover dibuka berlapis-lapis. Top down view dengan label arrow ke setiap lapisan. Mood premium, hi-tech."
-              dim="1080×1080"
+              dim="1080×1080" alt="Ottoman 5-layer seat cover exploded view"
               style={{ position: 'absolute', inset: 0, borderRadius: 'inherit' }} />
           </div>
           <div>

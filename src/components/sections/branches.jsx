@@ -1,5 +1,5 @@
 import { Media } from "@/components/ui/media";
-import { branches } from "@/data/content";
+import { branches, images } from "@/data/content";
 
 export function Branches() {
   return (
@@ -14,8 +14,9 @@ export function Branches() {
           {branches.map((b, i) => (
             <div className="branch" key={i}>
               <Media tag="PHOTO" tone={i === 1 ? "leather" : i === 0 ? "default" : "cocoa"}
+                     src={images.branches?.[i === 0 ? "penang" : i === 1 ? "selangor" : "johor"]}
                      brief={`Exterior shop Ottoman ${b.city} — signboard logo visible, kereta parking depan, daylight golden hour.`}
-                     dim="900×540"
+                     dim="900×540" alt={`Ottoman ${b.city} showroom`}
                      style={{ position:'relative', width:'100%', height:'auto', borderRadius:0, border:'none' }}
                      className="branch__media"/>
               <div className="branch__body">

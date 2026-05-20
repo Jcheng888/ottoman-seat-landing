@@ -1,5 +1,5 @@
 import { Media } from "@/components/ui/media";
-import { testimonials } from "@/data/content";
+import { testimonials, images } from "@/data/content";
 
 export function Testimonials() {
   return (
@@ -15,9 +15,9 @@ export function Testimonials() {
         <div className="testi__rail">
           {testimonials.map((t, i) => (
             <div key={i} className="testi-card">
-              <Media tag="PHOTO" tone={t.mediaTone}
+              <Media tag="PHOTO" tone={t.mediaTone} src={images.testimonial}
                      brief={`Customer photo: ${t.name} dengan kereta ${t.car}. Pose santai, smile, dalam/luar kereta. Authentic, bukan stock photo.`}
-                     dim="600×450"
+                     dim="600×450" alt={`${t.name} with ${t.car}`}
                      style={{ position:'relative', width:'100%', height:'auto', borderRadius:0, border:'none' }}
                      className="testi-card__media"/>
               <div className="testi-card__body">

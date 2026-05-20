@@ -1,5 +1,5 @@
 import { Media } from "@/components/ui/media";
-import { painpoints } from "@/data/content";
+import { painpoints, images } from "@/data/content";
 
 export function Problem() {
   return (
@@ -24,6 +24,7 @@ function Painpoint({ p, reverse }) {
   return (
     <div className={`painpoint ${reverse ? "painpoint--rev" : ""}`}>
       <Media className="painpoint__media" tag={p.mediaTag} tone={p.mediaTone}
+        src={images.painpoints?.[p.id]} alt={p.title?.replace(/<[^>]*>/g, '')}
         brief={p.mediaBrief} dim={p.mediaDim} />
       <div>
         <div className="painpoint__num">{p.num}</div>

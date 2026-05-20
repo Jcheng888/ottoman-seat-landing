@@ -223,3 +223,45 @@ export const funnelSteps = [
   { num: 3, title: "Confirm & bayar baki", desc: "Tengok mock-up & confirm. Baki dibayar — production start.", meta: "Hari 3" },
   { num: 4, title: "Install di rumah anda", desc: "Free up-to-door (Klang Valley). Dipasang on-site dalam 90 minit.", meta: "Hari 7–10" }
 ];
+
+// Image manifest — maps slot → generated or uploaded images
+// null = show placeholder gradient with brief text
+export const images = {
+  heroSplit:   "/generated-images/hero-split.jpg",
+  heroFull:    "/generated-images/hero-full.jpg",
+  heroGallery: {
+    main:       null,
+    macro:      null,
+    solo:       null,
+    wide:       null,
+    glitter:    null,
+  },
+  painpoints: {
+    spill:      "/generated-images/painpoint-spill.jpg",
+    sweat:      "/generated-images/painpoint-sweat.jpg",
+    upholstery: "/generated-images/painpoint-upholstery.jpg",
+    cheap:      "/generated-images/painpoint-cheap.jpg",
+    cracks:     "/generated-images/painpoint-cracks.jpg",
+  },
+  solution:    "/generated-images/solution-layers.jpg",
+  wow: {
+    beforeAfter:  "/generated-images/wow-before-after.jpg",
+    interior:     null,
+    galaxy:       null,
+    macroStitch:  "/generated-images/wow-macro-stitch.jpg",
+    installTL:    null,
+    showroom:     null,
+  },
+  series: {
+    origin: "/uploads/1.Origin.jpeg",
+    adamas: "/generated-images/series-adamas.jpg",
+    eleven: "/uploads/1.Eleven.jpeg",
+    titan:  "/uploads/1.Titan.jpeg",
+  },
+  testimonial: "/generated-images/testimonial-generic.jpg",
+  branches: {
+    penang:   null,
+    selangor: "/generated-images/branch-selangor.jpg",
+    johor:    null,
+  }
+};

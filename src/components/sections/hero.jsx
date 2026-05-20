@@ -1,4 +1,5 @@
 import { Icon, Media } from "@/components/ui/media";
+import { images } from "@/data/content";
 
 function HeroBlurb() {
   return (
@@ -59,9 +60,9 @@ function HeroSplit({ onOrder, onCheck }) {
         </div>
         <div className="hero__visual">
           <span className="hero__visual-badge"><span className="dot" /> Live · Promosi 48 jam</span>
-          <Media tag="VIDEO" tone="leather" icon="▶"
+          <Media tag="VIDEO" tone="leather" icon="▶" src={images.heroSplit}
             brief="Hero video looping 8s: kamera slow-pan dari pintu kereta luxury, masuk ke dalam, focus pada seat Ottoman Adamas (cocoa + tan piping, diamond stitch). Lighting dusk, warm tone."
-            dim="1080×1350" style={{ position: 'absolute', inset: 0, borderRadius: 0, border: 'none', minHeight: '100%' }} />
+            dim="1080×1350" alt="Ottoman Adamas seat cover installed in luxury car" style={{ position: 'absolute', inset: 0, borderRadius: 0, border: 'none', minHeight: '100%' }} />
         </div>
       </div>
     </section>
@@ -73,9 +74,9 @@ function HeroFull({ onOrder, onCheck }) {
     <section className="hero hero--full" id="top">
       <div className="hero__bleed">
         <div className="hero__bleed-media">
-          <Media tag="VIDEO" tone="leather" icon="▶"
+          <Media tag="VIDEO" tone="leather" icon="▶" src={images.heroFull}
             brief="Full-bleed hero: cinematic 12s loop interior kereta luxury malam, lighting dashboard sahaja, focus drift dari steering ke seat Ottoman fully installed. Mood ambient, no people."
-            dim="1920×1080" />
+            dim="1920×1080" alt="Ottoman seat covers installed in luxury car at night" />
         </div>
         <div className="wrap hero__bleed-inner">
           <HeroBlurb />
