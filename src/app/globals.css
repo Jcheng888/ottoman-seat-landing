@@ -266,7 +266,10 @@ a.ott-link:hover { border-bottom-color: currentColor; }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+}
 body {
   font-family: var(--font-sans);
   font-weight: 500;
@@ -274,14 +277,14 @@ body {
   background: var(--bg-1);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 img { display: block; max-width: 100%; height: auto; }
 button { font-family: inherit; }
 
 /* ----------------- Container ----------------- */
-.wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; overflow: clip; }
 @media (min-width: 768px) { .wrap { padding: 0 32px; } }
 
 /* ----------------- Top promo bar ----------------- */
@@ -1078,12 +1081,10 @@ button { font-family: inherit; }
 }
 .compare__head, .compare__row {
   display: grid; grid-template-columns: 1fr 1fr 1fr;
-  min-width: 420px;
 }
 @media (min-width: 500px) {
   .compare__head, .compare__row {
     grid-template-columns: 1.1fr 1fr 1fr;
-    min-width: 0;
   }
   .compare__table { overflow-x: visible; }
 }
@@ -1413,18 +1414,18 @@ body.has-sticky { padding-bottom: 72px; }
 .modal-bg {
   position: fixed; inset: 0; z-index: 100;
   background: rgba(31,31,31,0.7);
-  display: flex; align-items: flex-end; justify-content: center;
-  padding: 16px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 12px;
   animation: fade-in 0.25s var(--ease-out);
 }
-@media (min-width: 600px) { .modal-bg { align-items: center; } }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 .modal {
   background: var(--bg-1);
   border-radius: var(--radius-xl);
   width: 100%; max-width: 480px;
-  max-height: 92vh; overflow-y: auto;
+  max-height: 85dvh; overflow-y: auto;
   padding: 20px;
+  padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
   animation: modal-up 0.35s var(--ease-out);
 }
 @media (min-width: 500px) {
