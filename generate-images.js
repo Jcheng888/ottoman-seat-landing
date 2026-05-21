@@ -1,16 +1,12 @@
 #!/usr/bin/env node
 // =============================================================================
-// Ottoman Seat Cover — FAL AI Image Generator
+// Ottoman Seat Cover — FAL AI Image Generator (GPT Image 2)
 // =============================================================================
-// Generates responsive product/lifestyle images for the landing page using
-// FAL AI flux-pro. Reads prompts from fal-ai-prompts.js (in-browser) or
-// a local prompts.json mirror.
+// Generates photorealistic product/lifestyle images using OpenAI GPT Image 2
+// via FAL AI. All prompts follow the anti-fake "Less Is More" architecture.
 //
 // Usage:
-//   node generate-images.js [--dry-run] [--category=hero] [--size=landscape]
-//
-// Environment:
-//   FAL_KEY — your FAL AI API key (required)
+//   FAL_KEY=fal-... node generate-images.js [--dry-run] [--category=hero] [--size=landscape]
 //
 // Output:
 //   generated-images/  — all downloaded images
@@ -22,18 +18,18 @@ const path = require("path");
 
 // ── Config ──────────────────────────────────────────────────────────────────
 const FAL_KEY = process.env.FAL_KEY;
-const FAL_API  = "https://fal.run/fal-ai/flux-pro";         // flux-pro (fast, high quality)
+const FAL_API  = "https://fal.run/fal-ai/gpt-image-2";
 const OUT_DIR  = path.join(__dirname, "generated-images");
 const MANIFEST = path.join(OUT_DIR, "manifest.json");
-const CONCURRENCY = 2;                                      // parallel requests
+const CONCURRENCY = 2;
 const DRY_RUN  = process.argv.includes("--dry-run");
 
-// Image sizes for different contexts (width × height for FAL AI)
+// GPT Image 2 presets + custom sizes (must be multiples of 16, max 3:1 ratio)
 const SIZES = {
-  square:     { width: 1024, height: 1024 },   // 1:1  — macro, product solo
-  portrait:   { width: 864,  height: 1080 },   // 4:5  — hero, mobile-first
-  landscape:  { width: 1280, height: 720  },   // 16:9 — wide interior, showroom
-  wide:       { width: 1440, height: 600  },   // 2.4:1 — group shots
+  square:     "square_hd",                    // 1024×1024
+  portrait:   { width: 768,  height: 1024 },  // 3:4
+  landscape:  { width: 1280, height: 720  },  // 16:9
+  wide:       { width: 1440, height: 608  },  // ~2.4:1
 };
 
 // Parse CLI args
@@ -46,91 +42,121 @@ const args = Object.fromEntries(
 const SIZE_FILTER = args.size || null;
 const CATEGORY    = args.category || null;
 
-// ── Prompts (mirrored from fal-ai-prompts.js for Node.js) ──────────────────
+// ── Anti-Fake Prompts ───────────────────────────────────────────────────────
+// Architecture: RAW photo | Subject → Action → Environment → Lighting → Camera → Style → Quality (max 2)
+// Key anti-fake rules:
+//   1. "RAW photo" as the SINGLE realism anchor — never stack hyperrealistic/photorealistic/8K
+//   2. Camera + lens = strongest realism signal
+//   3. Specific lighting type = second strongest
+//   4. Max 2 quality tags (sharp focus, professional photography)
+//   5. Imperfection cues: natural shadows, film grain, minor lens distortion, unretouched
+//   6. GPT Image 2 does NOT support negative_prompt — prompts must stand alone
 
 const PROMPTS = {
-  // — Hero (split layout)
+
+  // ── Hero (split layout) ─────────────────────────────────────────────────
   "hero-split": {
-    positive: "Premium Cocoa Brown Nappa leatherette car seat cover with diamond stitching and tan leather piping, neatly installed on driver and passenger seats of a modern Malaysian sedan, hero display, centered composition, subject fills frame, door open revealing full interior, luxury car interior, clean dashboard with ambient glow, leather upholstery visible, dusk outdoor setting visible through windows, golden hour natural sunlight streaming through side window, soft interior ambient fill, rim light on seat edges, 85mm portrait lens, f/1.8, shallow depth of field, shot on Sony A7R IV, automotive advertising photography, aspirational and premium mood, warm golden tones, hyperrealistic, 8K resolution, ultra-detailed, sharp focus, professional photography, high dynamic range",
-    negative: "cartoon, illustration, painting, drawing, anime, 3D render, CGI, watermark, text, logo, blurry, out of focus, overexposed, underexposed, low quality, low resolution, pixelated, grainy, distorted, deformed, ugly, amateur photography, stock photo look, plastic, fake, unrealistic, wrinkled fabric, misaligned seat cover, dirty interior, wrong car model, floating objects, incorrect proportions",
+    prompt: "RAW photo, premium Cocoa Brown Nappa leatherette car seat cover with diamond stitching and tan leather piping, neatly installed on driver and passenger seats of a modern Malaysian sedan, door open revealing full interior, centered composition on the seat, luxury car interior with clean dashboard, leather upholstery visible, dusk outdoor setting visible through side window, golden hour natural sunlight streaming through side window creating soft rim light on seat edges, natural shadows falling across leather surface, 85mm portrait lens f/1.8, shot on Sony A7R IV, automotive advertising photography, warm golden tones, sharp focus, professional photography",
     size: "portrait"
   },
 
   "hero-full": {
-    positive: "Wide cinematic interior shot of a luxury car at night, dashboard ambient lighting only, premium Cocoa Brown Nappa leatherette seat covers with diamond stitching fully installed on all seats, steering wheel visible in foreground, camera slowly drifting focus from steering wheel to driver seat, shallow depth of field shift, luxury car interior at night, clean modern dashboard, leather-wrapped steering wheel, ambient blue dashboard glow, Malaysian urban skyline visible through windows, ambient dashboard lighting only, soft blue instrument panel glow, subtle rim light on leather surfaces, night mood, 35mm lens, f/2.0, wide establishing shot, shot on Canon EOS R5, cinematic automotive photography, moody and cinematic mood, rich dark tones, hyperrealistic, 8K resolution, ultra-detailed, sharp focus, professional photography, high dynamic range",
-    negative: "cartoon, illustration, painting, drawing, anime, 3D render, CGI, watermark, text, logo, blurry, out of focus, overexposed, underexposed, low quality, pixelated, daylight, bright interior, people visible, damaged vehicle, dirty car, wrong car model, wrinkled fabric, misaligned seat cover, floating objects, incorrect proportions",
+    prompt: "RAW photo, wide cinematic interior shot of a luxury car at night, dashboard ambient lighting only, premium Cocoa Brown Nappa leatherette seat covers with diamond stitching fully installed on all seats, steering wheel visible in foreground, shallow depth of field, luxury car interior at night, clean modern dashboard, leather-wrapped steering wheel, ambient blue dashboard glow, Malaysian urban skyline visible through windows, natural light falloff from dashboard instruments, subtle rim light on leather surfaces, 35mm lens f/2.0, shot on Canon EOS R5, cinematic automotive photography, rich dark tones, sharp focus, professional photography",
     size: "landscape"
   },
 
-  // — Painpoints
+  // ── Hero Gallery (5 sub-shots) ──────────────────────────────────────────
+  "hero-gallery-main": {
+    prompt: "RAW photo, driver point-of-view shot looking down at premium Cocoa Brown Nappa leatherette car seat with tan piping and diamond stitching, hands resting naturally on leather-wrapped steering wheel, relaxed driving posture, modern car dashboard visible, outdoor dusk visible through windshield, golden hour light streaming through windshield creating natural lens flare, soft dashboard reflection, 35mm lens f/2.0, POV perspective, shot on Sony A7R IV, lifestyle automotive photography, warm and inviting mood, sharp focus, natural grain",
+    size: "landscape"
+  },
+
+  "hero-gallery-macro": {
+    prompt: "RAW photo, extreme close-up macro shot of diamond stitching pattern on premium Nappa leatherette car seat cover, natural leather grain texture fully visible with slight imperfections, tan contrast thread weaving through cocoa brown leather, studio environment with clean neutral background, 45-degree angled studio lighting raking across surface to emphasize texture, natural shadows in stitch crevices, 100mm macro lens f/2.8, shot on Canon EOS R5, commercial product photography, clean and minimalist mood, sharp focus, professional photography",
+    size: "square"
+  },
+
+  "hero-gallery-solo": {
+    prompt: "RAW photo, single driver seat in maroon and cream Nappa leatherette with diamond stitching, neatly installed in a Honda HR-V, solo hero shot with centered composition, clean car interior with dark subdued background, dramatic side lighting from left window, natural shadows on right side of seat, 85mm portrait lens f/1.8, shot on Sony A7R IV, automotive advertising photography, bold and dynamic mood, sharp focus, professional photography",
+    size: "portrait"
+  },
+
+  "hero-gallery-wide": {
+    prompt: "RAW photo, wide interior shot of a 5-seater Malaysian sedan fully installed with premium Nappa leatherette seat covers in Cocoa Brown, all seats visible with diamond stitching pattern, clean organized interior with no clutter, top-down 3/4 angle, soft diffused natural daylight through all windows, even exposure throughout cabin, slight natural shadows under seats, 24mm wide angle lens f/4.0, shot on Canon EOS R5, commercial automotive photography, clean and minimalist mood, sharp focus, professional photography",
+    size: "landscape"
+  },
+
+  "hero-gallery-glitter": {
+    prompt: "RAW photo, Eleven series navy blue galaxy glitter seat cover installed in car interior at night, thousands of tiny metallic flakes sparkling under ambient blue dashboard light, stars-like effect on black seat surface, dark car interior with subtle ambient blue light, Malaysian city lights subtly visible through windows, blue dashboard glow as key light, pinpoint sparkles catching light naturally, 50mm standard lens f/2.0, shot on Sony A7R IV, automotive photography, moody and cinematic mood, sharp focus, professional photography",
+    size: "landscape"
+  },
+
+  // ── Painpoints (5 problem shots) ────────────────────────────────────────
   "painpoint-spill": {
-    positive: "Top-down overhead shot of a young child accidentally spilling a baby bottle of milk onto a fabric car seat, milk spreading across the seat fabric, liquid pooling on the surface, spilling action frozen in time, milk splashing mid-air, dynamic moment, car interior, fabric seat surface visible, child's small hands holding tipped bottle, natural family car environment, natural overhead lighting from car dome light, cinematic mood with dramatic shadows, slight warm tone, 50mm standard lens, f/2.8, top-down perspective, shot on Canon EOS R5, lifestyle photography, cinematic and dramatic mood, warm tones, photorealistic, 8K resolution, ultra-detailed, sharp focus on liquid spill, high dynamic range",
-    negative: "cartoon, illustration, 3D render, CGI, watermark, text, logo, blurry, overexposed, low quality, stock photo look, wrong car interior, happy mood, clean seat, absent child",
+    prompt: "RAW photo, top-down overhead shot of a young child accidentally spilling a baby bottle of milk onto a beige fabric car seat, milk spreading across the seat fabric creating a wet stain, liquid pooling on the surface, child's small hands holding tipped bottle, spilling action frozen mid-motion, natural family car interior with toys visible in background, natural overhead lighting from car dome light, cinematic shadows adding drama, 50mm standard lens f/2.8, top-down perspective, shot on Canon EOS R5, documentary photography, warm tones, sharp focus, professional photography",
     size: "landscape"
   },
+
   "painpoint-sweat": {
-    positive: "Extreme close-up of a fabric car seat showing yellow sweat stains on the backrest and thigh area, discolored patches on beige fabric, contrast with clean fabric surrounding the stains, static close-up documentation shot, problem evidence, car interior, driver seat focus, harsh Malaysian midday environment visible through window, harsh midday sunlight, unflattering direct light to emphasize the stain problem, high contrast, 100mm macro lens, f/2.8, extreme detail close-up, shot on Sony A7R IV, documentary photography, raw and unfiltered mood, neutral color grading, photorealistic, 8K resolution, ultra-detailed texture, sharp focus on fabric stains, high dynamic range",
-    negative: "cartoon, illustration, 3D render, CGI, watermark, blurry, low quality, clean seat, flattering lighting, beauty shot, stock photo look",
+    prompt: "RAW photo, extreme close-up of a beige fabric car seat showing yellow sweat stains on the backrest and thigh area, discolored patches contrasting with clean fabric surrounding, static documentation shot showing problem evidence, car interior focusing on driver seat, harsh Malaysian midday environment visible through window, harsh midday sunlight emphasizing stain contrast, unflattering direct light, 100mm macro lens f/2.8, shot on Sony A7R IV, documentary photography, raw and unfiltered mood, neutral color grading, sharp focus, professional photography",
     size: "landscape"
   },
+
   "painpoint-upholstery": {
-    positive: "Wide shot of a car upholstery workshop in Malaysia: a car with all seats removed, seats scattered on the floor, mechanic in work uniform working on removing upholstery, tools and materials everywhere, workshop in progress, mechanic actively working, disassembly state, messy car upholstery workshop, industrial garage setting, tools on wall, spare seat covers stacked, fluorescent lighting, Malaysian shop environment, harsh fluorescent overhead workshop lighting, unflattering industrial light, some natural light from open garage door, 24mm wide angle lens, f/4.0, environmental shot, shot on Canon EOS R5, documentary photography, raw and messy mood, neutral color grading, photorealistic, 8K resolution, ultra-detailed, sharp focus, high dynamic range",
-    negative: "cartoon, illustration, 3D render, CGI, watermark, blurry, low quality, clean workshop, organized environment, luxury showroom, stock photo look",
+    prompt: "RAW photo, wide shot of a car upholstery workshop in Malaysia, a car with all seats removed and scattered on the floor, mechanic in blue work uniform actively working on removing upholstery, tools and spare materials everywhere, messy industrial garage setting with tools on wall, harsh fluorescent overhead workshop lighting, some natural light from open garage door, 24mm wide angle lens f/4.0, shot on Canon EOS R5, documentary photography, raw and authentic mood, sharp focus, professional photography",
     size: "landscape"
   },
+
   "painpoint-cheap": {
-    positive: "Side-by-side comparison shot: left side shows a loose wrinkled universal car seat cover from Shopee with poor fit and sagging fabric; right side shows a perfectly fitted premium Ottoman custom seat cover with clean diamond stitching and tight fit, comparison display, both seats visible in same frame, split composition, car interior, two front seats side by side, clean neutral car environment, even soft diffused studio lighting, consistent exposure across both seats, no shadows obscuring details, 50mm standard lens, f/4.0, straight-on perspective, shot on Sony A7R IV, commercial comparison photography, clean and informative mood, neutral color grading, photorealistic, 8K resolution, ultra-detailed, sharp focus, high dynamic range",
-    negative: "cartoon, illustration, 3D render, CGI, watermark, blurry, low quality, biased lighting, different angles, inconsistent comparison, stock photo look",
+    prompt: "RAW photo, side-by-side comparison shot inside a car interior, left side shows a loose wrinkled universal car seat cover with poor fit and sagging fabric, right side shows a perfectly fitted premium custom seat cover with clean diamond stitching and tight fit, both seats visible in same frame with split composition, clean neutral car environment, even soft diffused lighting, consistent exposure across both seats, 50mm standard lens f/4.0, straight-on perspective, shot on Sony A7R IV, commercial comparison photography, clean and informative mood, sharp focus, professional photography",
     size: "landscape"
   },
+
   "painpoint-cracks": {
-    positive: "Extreme close-up of an old cracked and peeling leather car seat, cracks running across the surface, sponge foam visible through tears, deteriorated leather texture, years of sun damage evident, static close-up, damage documentation, texture detail, old car interior, aged leather seat, Malaysian sun-damaged vehicle, dramatic side lighting, raking light across surface to emphasize cracks and texture, deep shadows in crevices, 100mm macro lens, f/2.8, extreme texture close-up, shot on Canon EOS R5, documentary photography, dramatic and raw mood, rich dark tones, photorealistic, 8K resolution, ultra-detailed texture, sharp focus on cracks, high dynamic range",
-    negative: "cartoon, illustration, 3D render, CGI, watermark, blurry, low quality, new seat, clean leather, beauty shot, flattering lighting, stock photo look",
+    prompt: "RAW photo, extreme close-up of an old cracked and peeling leather car seat, cracks running across the surface with sponge foam visible through deep tears, deteriorated leather texture showing years of sun damage, old car interior, dramatic side lighting raking across surface to emphasize cracks and texture, deep natural shadows in crevices, 100mm macro lens f/2.8, shot on Canon EOS R5, documentary photography, dramatic and raw mood, sharp focus, professional photography",
     size: "landscape"
   },
 
-  // — Solution
+  // ── Solution (5-layer exploded view) ────────────────────────────────────
   "solution-layers": {
-    positive: "Exploded view diagram of a premium car seat cover showing 5 distinct layers separated and floating: top easy-clean coating, Nappa leather layer, waterproofing film, anti-slip grip backing, and impact-absorbing padding, layers separated vertically with small gaps between each, arrow labels pointing to each layer, technical presentation, clean white studio background, premium product display setting, technical diagram aesthetic, soft diffused studio lighting, even illumination across all layers, no harsh shadows, product photography lighting, 100mm macro lens, f/4.0, top-down angle, shot on Hasselblad X2D, commercial product photography, clean and minimalist mood, premium hi-tech aesthetic, hyperrealistic, 8K resolution, ultra-detailed, sharp focus, high dynamic range",
-    negative: "cartoon, illustration, painting, drawing, anime, 3D render, CGI, watermark, text, logo, blurry, out of focus, overexposed, underexposed, low quality, pixelated, messy background, wrinkled fabric, uneven lighting, harsh shadows, cluttered environment",
+    prompt: "RAW photo, exploded view of a premium car seat cover showing 5 distinct layers separated and floating vertically with small gaps between each, top easy-clean fabric coating layer, Nappa leatherette layer with visible grain texture, waterproofing film with subtle sheen, anti-slip grip backing with rubberized texture pattern, and impact-absorbing foam padding at bottom, clean white studio background, technical product presentation, soft diffused studio lighting with even illumination across all layers, natural soft shadows between floating layers, 100mm macro lens f/4.0, top-down angle, shot on Hasselblad X2D, commercial product photography, clean and minimalist mood, sharp focus, professional photography",
     size: "square"
   },
 
-  // — Wow Gallery
+  // ── Wow Gallery (6 items) ──────────────────────────────────────────────
   "wow-before-after": {
-    positive: "Split-screen before-after transformation: left half shows dirty stained fabric car seat in an old car, right half shows the same car interior with premium Cocoa Brown Nappa leatherette Ottoman seat cover perfectly installed, dramatic improvement visible, before-after comparison, wipe transition effect, transformation reveal, same car interior, consistent angle and lighting for fair comparison, Malaysian car context, even natural daylight, consistent exposure across both halves, golden hour warmth on after side, 35mm lens, f/4.0, straight-on interior shot, shot on Sony A7R IV, commercial transformation photography, aspirational and premium mood, warm golden tones, hyperrealistic, 8K resolution, ultra-detailed, sharp focus, high dynamic range",
-    negative: "cartoon, illustration, 3D render, CGI, watermark, blurry, low quality, different cars, inconsistent lighting, misleading comparison, stock photo look",
+    prompt: "RAW photo, split-screen before-after transformation inside a car interior, left half shows dirty stained beige fabric car seat in an older car, right half shows the same car interior with premium Cocoa Brown Nappa leatherette seat cover perfectly installed with diamond stitching, dramatic improvement visible in same frame, consistent angle and lighting across both halves for fair comparison, Malaysian car context, even natural daylight through windows, golden hour warmth on the after side, 35mm lens f/4.0, straight-on interior shot, shot on Sony A7R IV, commercial transformation photography, warm golden tones, sharp focus, professional photography",
     size: "landscape"
   },
+
+  "wow-interior": {
+    prompt: "RAW photo, Honda HR-V 2022 interior with maroon and cream Nappa leatherette seat covers fully installed on all 5 seats, diamond stitching pattern visible across all seats, tan piping accents along edges, clean organized cabin, modern dashboard with ambient display glow, outdoor Malaysian residential area visible through windows, soft natural daylight through windows and sunroof, even interior illumination with natural shadows, 24mm wide angle lens f/4.0, interior wide shot, shot on Canon EOS R5, automotive interior photography, warm and inviting mood, sharp focus, professional photography",
+    size: "landscape"
+  },
+
+  "wow-galaxy": {
+    prompt: "RAW photo, Eleven series navy blue galaxy glitter seat cover installed in car interior at night, thousands of tiny metallic flakes sparkling under ambient blue dashboard light, stars-like cosmic effect on black seat surface, dark car interior with subtle blue ambient glow from dashboard instruments, Malaysian city lights visible through windows, blue dashboard glow as key light, subtle neon reflections from outside, 50mm standard lens f/2.0, shot on Sony A7R IV, automotive photography, moody and cinematic mood, rich dark tones with natural blue accents, sharp focus, professional photography",
+    size: "landscape"
+  },
+
   "wow-macro-stitch": {
-    positive: "Extreme macro close-up of Adamas series diamond stitching pattern on premium Nappa leatherette seat cover, every leather grain visible, contrast tan thread weaving through cocoa brown leather, 45-degree lighting raking across texture, macro texture study, static extreme close-up, studio setting, clean dark background, focus entirely on leather and stitching, 45-degree angled studio light, raking across surface to emphasize leather grain and stitch texture, soft fill from opposite side, 100mm macro lens, f/2.8, extreme close-up, shot on Hasselblad X2D, commercial product photography, clean and minimalist mood, warm earthy tones, hyperrealistic, 8K resolution, ultra-detailed texture, sharp focus on every stitch, high dynamic range",
-    negative: "cartoon, 3D render, CGI, watermark, blurry, out of focus, low quality, wrinkled fabric, uneven lighting, harsh shadows, messy background",
+    prompt: "RAW photo, extreme macro close-up of Adamas series diamond stitching pattern on premium Nappa leatherette seat cover, every natural leather grain and pore visible, contrast tan thread weaving through rich cocoa brown leather, 45-degree studio lighting raking across surface to emphasize leather grain depth and stitch texture, soft fill from opposite side, natural shadows in leather grain, clean dark background, 100mm macro lens f/2.8, shot on Hasselblad X2D, commercial product photography, warm earthy tones, sharp focus, professional photography",
     size: "square"
   },
 
-  // — Series
-  "series-adamas": {
-    positive: "Single driver seat with Ottoman Adamas series seat cover in rich Cocoa Brown Nappa leatherette, elegant diamond stitching, tan contrast piping, 6mm premium padding, installed in a Honda City, luxury appearance, solo product hero shot, premium display, Honda City 2023 interior, clean modern dashboard, premium Malaysian sedan context, golden hour sunlight streaming through side window, warm amber glow on leather, soft shadows for depth, 85mm portrait lens, f/1.8, shallow depth of field, shot on Sony A7R IV, luxury automotive photography, aspirational and premium mood, warm golden tones, hyperrealistic, 8K resolution, ultra-detailed leather texture, sharp focus, high dynamic range",
-    negative: "cartoon, 3D render, CGI, watermark, blurry, overexposed, low quality, dirty interior, wrinkled fabric, wrong car model, floating objects",
-    size: "landscape"
-  },
-  "series-titan": {
-    positive: "Single driver seat with Ottoman Titan series heavy-duty seat cover in carbon fibre texture pattern, graphite black color, 8mm thick padding, rugged premium look, installed in a Toyota Hilux, ready for tough conditions, solo rugged product display, heavy-duty aesthetic, Toyota Hilux interior, utilitarian premium truck cabin, outdoor construction site visible through windows, harsh natural daylight, high contrast, shadow and light defining rugged texture, dramatic outdoor light, 50mm standard lens, f/2.8, seat-focused with context, shot on Canon EOS R5, automotive product photography, bold and dynamic mood, cool desaturated tones, hyperrealistic, 8K resolution, ultra-detailed carbon texture, sharp focus, high dynamic range",
-    negative: "cartoon, 3D render, CGI, watermark, blurry, overexposed, low quality, luxury sedan interior, soft lighting, elegant styling, wrong car model",
+  "wow-installTL": {
+    prompt: "RAW photo, professional Malaysian car installer in dark work uniform wrapping a car seat with premium Ottoman seat cover, hands working methodically with installation tools, seat mid-transformation from bare fabric to partially covered, multiple installation stages visible, clean car interior workshop setting with organized tools nearby, consistent even workshop lighting, no harsh flash, balanced exposure, 35mm lens f/4.0, fixed tripod perspective, shot on Canon EOS R5, documentary process photography, informative and professional mood, sharp focus, professional photography",
     size: "landscape"
   },
 
-  // — Testimonial (generic)
+  "wow-showroom": {
+    prompt: "RAW photo, wide elevated angle shot of Ottoman showroom interior in Klang Malaysia, three different series seat covers displayed side by side on display seats showing Origin charcoal grey, Adamas cocoa brown diamond stitch, and Titan graphite black carbon texture, modern retail showroom interior with Ottoman brand signage on wall, clean polished floor with natural reflections, bright even showroom lighting from overhead track lights combined with natural daylight from storefront windows, 24mm wide angle lens f/5.6, shot on Canon EOS R5, commercial retail photography, professional and clean mood, sharp focus, professional photography",
+    size: "wide"
+  },
+
+  // ── Testimonial (generic customer lifestyle) ────────────────────────────
   "testimonial-generic": {
-    positive: "Happy Malaysian person in their early 30s, standing next to their car, slight genuine smile, casual smart everyday outfit, premium Ottoman seat covers visible through car window, authentic customer photo, outdoor Malaysian setting, standing relaxed next to car, slight smile, natural pose, hand on car door or roof, looking at camera, outdoor Malaysian residential area or parking lot, clean natural environment, late afternoon golden hour, golden hour natural sunlight, warm flattering light on face, soft shadows, natural Malaysian sky, 50mm standard lens, f/2.8, environmental portrait, shot on Sony A7R IV, lifestyle photography, warm and inviting mood, warm golden tones, photorealistic, authentic not stock, 8K resolution, ultra-detailed, sharp focus on person and car, high dynamic range",
-    negative: "extra fingers, deformed hands, bad anatomy, multiple heads, skin blemishes, unnatural skin tone, cartoon, 3D render, CGI, watermark, blurry, overexposed, stock photo look, fake smile, studio background",
-    size: "landscape"
-  },
-
-  // — Branch
-  "branch-selangor": {
-    positive: "Flagship Ottoman showroom exterior in Bandar Botanik, Klang, Selangor, large modern commercial building with prominent Ottoman brand signage, multiple customer cars parked, busy daytime operation, premium flagship presence, flagship storefront, active daytime operation, cars and customers visible, welcoming entrance, Bandar Botanik commercial district, Klang, modern Malaysian shop lot architecture, clean streets, tropical environment, Malaysian golden hour daylight, warm natural light on building, slight angle creating depth, clear blue sky, 24mm wide angle lens, f/8.0, flagship architectural shot, shot on Canon EOS R5, commercial architecture photography, aspirational and premium mood, vibrant saturated tones, photorealistic, 8K resolution, ultra-detailed, sharp focus, high dynamic range",
-    negative: "cartoon, 3D render, CGI, watermark, blurry, overexposed, low quality, wrong signage, empty parking, night shot, rainy day, stock photo look",
+    prompt: "RAW photo, happy Malaysian person in their early 30s standing next to their car in an outdoor Malaysian residential setting, slight genuine natural smile showing teeth, casual smart everyday outfit, hand resting naturally on car door, premium Ottoman seat covers subtly visible through car window, authentic candid moment not posed studio shot, late afternoon golden hour in Malaysian suburb, golden hour natural sunlight creating warm flattering light on face, soft natural shadows, authentic skin texture with minor imperfections, 50mm standard lens f/2.8, environmental portrait, shot on Sony A7R IV, lifestyle photography, warm and inviting mood, warm golden tones, sharp focus, professional photography",
     size: "landscape"
   }
 };
@@ -145,26 +171,28 @@ async function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
 }
 
-// ── FAL AI API Call ─────────────────────────────────────────────────────────
+// ── FAL AI GPT Image 2 API Call ──────────────────────────────────────────────
 
 async function generateImage(slotKey, prompt, sizeKey = "landscape") {
-  const dimensions = SIZES[sizeKey] || SIZES.landscape;
-  // flux-pro does not support negative_prompt — only prompt is used
+  const imageSize = SIZES[sizeKey] || SIZES.landscape;
+
+  // GPT Image 2 does NOT support negative_prompt
   const body = {
-    prompt: prompt.positive,
-    image_size: dimensions,
-    num_inference_steps: 28,
-    guidance_scale: 3.5,
+    prompt: prompt.prompt,
+    image_size: imageSize,
+    quality: "high",
     num_images: 1,
-    enable_safety_checker: false,
+    output_format: "jpeg",
   };
 
   if (DRY_RUN) {
-    console.log(`  [DRY-RUN] Would generate: ${slotKey} (${dimensions.width}×${dimensions.height})`);
+    const dims = typeof imageSize === "string" ? imageSize : `${imageSize.width}×${imageSize.height}`;
+    console.log(`  [DRY-RUN] Would generate: ${slotKey} (${dims})`);
     return { slotKey, url: null, dryRun: true };
   }
 
-  console.log(`  Generating: ${slotKey} (${dimensions.width}×${dimensions.height})...`);
+  const dims = typeof imageSize === "string" ? imageSize : `${imageSize.width}×${imageSize.height}`;
+  console.log(`  Generating: ${slotKey} (${dims})...`);
 
   const res = await fetch(FAL_API, {
     method: "POST",
@@ -209,9 +237,10 @@ async function main() {
   }
 
   console.log("╔══════════════════════════════════════════════════════╗");
-  console.log("║  Ottoman — FAL AI Image Generator                     ║");
+  console.log("║  Ottoman — FAL AI GPT Image 2 Generator               ║");
   console.log("╚══════════════════════════════════════════════════════╝");
   console.log(DRY_RUN ? "  MODE: DRY RUN (no API calls)" : `  MODE: LIVE (${CONCURRENCY} concurrent)`);
+  console.log(`  Model: GPT Image 2 (high quality)`);
   console.log(`  Output: ${OUT_DIR}`);
   if (CATEGORY) console.log(`  Filter: category=${CATEGORY}`);
   if (SIZE_FILTER) console.log(`  Filter: size=${SIZE_FILTER}`);
@@ -227,7 +256,7 @@ async function main() {
   }
 
   console.log(`  ${slots.length} image(s) to generate:\n`);
-  slots.forEach(s => console.log(`    - ${s.key} [${s.size}]`));
+  slots.forEach(s => console.log(`    - ${s.key} [${typeof s.size === "string" ? s.size : JSON.stringify(s.size)}]`));
   console.log("");
 
   if (slots.length === 0) {
@@ -245,7 +274,7 @@ async function main() {
   for (let i = 0; i < slots.length; i += CONCURRENCY) {
     const batch = slots.slice(i, i + CONCURRENCY);
     const batchResults = await Promise.all(
-      batch.map(s => generateImage(s.key, { positive: s.positive, negative: s.negative }, s.size))
+      batch.map(s => generateImage(s.key, { prompt: s.prompt }, typeof s.size === "string" ? s.size : "landscape"))
     );
     results.push(...batchResults);
 
@@ -262,7 +291,7 @@ async function main() {
 
     // Small delay between batches to avoid rate limiting
     if (i + CONCURRENCY < slots.length) {
-      await sleep(2000);
+      await sleep(3000);
     }
   }
 
@@ -280,7 +309,7 @@ async function main() {
   }
 
   console.log(`\n  Done. ${results.filter(r => r.url).length} images generated.`);
-  console.log(`  Add images to your project and reference them via manifest.json\n`);
+  console.log(`  Copy generated-images/ to public/generated-images/ for Next.js\n`);
 }
 
 main().catch(err => {

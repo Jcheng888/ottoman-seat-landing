@@ -225,17 +225,19 @@ export const funnelSteps = [
 ];
 
 // Image manifest — maps slot → generated or uploaded images
-// null = show placeholder gradient with brief text
+// Real product photos used for series & branches; AI-generated for lifestyle/conceptual
 export const images = {
+  // Hero — AI-generated (GPT Image 2)
   heroSplit:   "/generated-images/hero-split.jpg",
   heroFull:    "/generated-images/hero-full.jpg",
   heroGallery: {
-    main:       null,
-    macro:      null,
-    solo:       null,
-    wide:       null,
-    glitter:    null,
+    main:       "/generated-images/hero-gallery-main.jpg",
+    macro:      "/generated-images/hero-gallery-macro.jpg",
+    solo:       "/generated-images/hero-gallery-solo.jpg",
+    wide:       "/generated-images/hero-gallery-wide.jpg",
+    glitter:    "/generated-images/hero-gallery-glitter.jpg",
   },
+  // Painpoints — AI-generated
   painpoints: {
     spill:      "/generated-images/painpoint-spill.jpg",
     sweat:      "/generated-images/painpoint-sweat.jpg",
@@ -243,25 +245,30 @@ export const images = {
     cheap:      "/generated-images/painpoint-cheap.jpg",
     cracks:     "/generated-images/painpoint-cracks.jpg",
   },
+  // Solution — AI-generated
   solution:    "/generated-images/solution-layers.jpg",
+  // Wow Gallery — AI-generated
   wow: {
     beforeAfter:  "/generated-images/wow-before-after.jpg",
-    interior:     null,
-    galaxy:       null,
+    interior:     "/generated-images/wow-interior.jpg",
+    galaxy:       "/generated-images/wow-galaxy.jpg",
     macroStitch:  "/generated-images/wow-macro-stitch.jpg",
-    installTL:    null,
-    showroom:     null,
+    installTL:    "/generated-images/wow-installtl.jpg",
+    showroom:     "/generated-images/wow-showroom.jpg",
   },
+  // Series — Real product photos from uploads
   series: {
     origin: "/uploads/1.Origin.jpeg",
-    adamas: "/generated-images/series-adamas.jpg",
+    adamas: "/uploads/1.Adamas.jpeg",
     eleven: "/uploads/1.Eleven.jpeg",
     titan:  "/uploads/1.Titan.jpeg",
   },
+  // Testimonial — AI-generated
   testimonial: "/generated-images/testimonial-generic.jpg",
+  // Branches — Real location photos from uploads
   branches: {
-    penang:   null,
-    selangor: "/generated-images/branch-selangor.jpg",
-    johor:    null,
+    penang:   "/uploads/branch-penang.png",
+    selangor: "/uploads/branch-selangor.jpeg",
+    johor:    "/uploads/branch-johor.jpeg",
   }
 };

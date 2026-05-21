@@ -109,21 +109,21 @@ function HeroGallery({ onOrder, onCheck }) {
           </button>
         </div>
         <div className="hero__gallery">
-          <Media className="g1" tag="VIDEO" tone="leather" icon="▶"
+          <Media className="g1" tag="VIDEO" tone="leather" icon="▶" src={images.heroGallery?.main}
             brief="Hero featured: 8s loop driver POV — masuk kereta, duduk atas seat Ottoman Adamas, drive off. Dusk lighting."
-            dim="1200×900" />
-          <Media className="g2" tag="PHOTO" tone="cocoa"
+            dim="1200×900" alt="Driver POV shot of Ottoman seat cover" />
+          <Media className="g2" tag="PHOTO" tone="cocoa" src={images.heroGallery?.macro}
             brief="Macro shot diamond stitching, lighting 45°, texture leather grain visible."
-            dim="600×600" />
-          <Media className="g3" tag="PHOTO" tone="maroon"
+            dim="600×600" alt="Macro stitching detail of Ottoman seat cover" />
+          <Media className="g3" tag="PHOTO" tone="maroon" src={images.heroGallery?.solo}
             brief="Driver seat solo shot, dramatic side light, maroon + cream theme."
-            dim="600×600" />
-          <Media className="g4" tag="PHOTO" tone="default"
+            dim="600×600" alt="Maroon and cream Ottoman seat cover installed" />
+          <Media className="g4" tag="PHOTO" tone="default" src={images.heroGallery?.wide}
             brief="Wide interior, 5-seater fully installed, top-down 3/4 angle."
-            dim="900×600" />
-          <Media className="g5" tag="PHOTO" tone="galaxy"
+            dim="900×600" alt="Full 5-seater car with Ottoman seat covers" />
+          <Media className="g5" tag="PHOTO" tone="galaxy" src={images.heroGallery?.glitter}
             brief="Eleven series glitter effect, night shot dengan ambient light."
-            dim="900×600" />
+            dim="900×600" alt="Ottoman Eleven galaxy glitter seat cover at night" />
         </div>
       </div>
     </section>

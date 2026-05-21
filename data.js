@@ -270,11 +270,11 @@ OTT.images = {
   heroSplit:   "generated-images/hero-split.jpg",
   heroFull:    "generated-images/hero-full.jpg",
   heroGallery: {
-    main:       null,
-    macro:      null,
-    solo:       null,
-    wide:       null,
-    glitter:    null,
+    main:       "generated-images/hero-gallery-main.jpg",
+    macro:      "generated-images/hero-gallery-macro.jpg",
+    solo:       "generated-images/hero-gallery-solo.jpg",
+    wide:       "generated-images/hero-gallery-wide.jpg",
+    glitter:    "generated-images/hero-gallery-glitter.jpg",
   },
   painpoints: {
     spill:      "generated-images/painpoint-spill.jpg",
@@ -286,23 +286,23 @@ OTT.images = {
   solution:    "generated-images/solution-layers.jpg",
   wow: {
     beforeAfter:  "generated-images/wow-before-after.jpg",
-    interior:     null,
-    galaxy:       null,
+    interior:     "generated-images/wow-interior.jpg",
+    galaxy:       "generated-images/wow-galaxy.jpg",
     macroStitch:  "generated-images/wow-macro-stitch.jpg",
-    installTL:    null,
-    showroom:     null,
+    installTL:    "generated-images/wow-installtl.jpg",
+    showroom:     "generated-images/wow-showroom.jpg",
   },
   series: {
     origin: "uploads/1.Origin.jpeg",
-    adamas: "generated-images/series-adamas.jpg",
+    adamas: "uploads/1.Adamas.jpeg",
     eleven: "uploads/1.Eleven.jpeg",
     titan:  "uploads/1.Titan.jpeg",
   },
   testimonial: "generated-images/testimonial-generic.jpg",
   branches: {
-    penang:   null,
-    selangor: "generated-images/branch-selangor.jpg",
-    johor:    null,
+    penang:   "uploads/branch-penang.png",
+    selangor: "uploads/branch-selangor.jpeg",
+    johor:    "uploads/branch-johor.jpeg",
   }
 };
 
